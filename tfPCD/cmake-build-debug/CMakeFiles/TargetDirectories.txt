@@ -1,3 +1,0 @@
-/home/jiang/1_code/AP2.0/tfPCD/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/jiang/1_code/AP2.0/tfPCD/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/jiang/1_code/AP2.0/tfPCD/cmake-build-debug/CMakeFiles/tflidar2pcd.dir
