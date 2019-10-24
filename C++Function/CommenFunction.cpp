@@ -107,9 +107,71 @@ double roll = euler_angles(2)  ; //* ARC_TO_DEG;
 Eigen::AngleAxisd rollAngle(roll, Eigen::Vector3d::UnitX());   //eulerAngle(2)
 Eigen::AngleAxisd pitchAngle(pitch, Eigen::Vector3d::UnitY()); //eulerAngle(1)
 Eigen::AngleAxisd yawAngle(yaw, Eigen::Vector3d::UnitZ());     //eulerAngle(0)
-
-Eigen::Matrix3d rotation_matrix = yawAngle * pitchAngle * rollAngle;
+//Eigen::Matrix3d rotation_matrix = yawAngle * pitchAngle * rollAngle;
 Eigen::Quaterniond            q = yawAngle * pitchAngle * rollAngle;
+
+Eigen::Matrix3d eulerAnglesToRotationMatrix(Eigen::Vector3d theta) //theta rpy顺序
+{
+    Eigen::Matrix3d R_x=Eigen::AngleAxisd(theta(0),Eigen::Vector3d(1,0,0)).toRotationMatrix();
+    Eigen::Matrix3d R_y=Eigen::AngleAxisd(theta(1),Eigen::Vector3d(0,1,0)).toRotationMatrix();
+    Eigen::Matrix3d R_z=Eigen::AngleAxisd(theta(2),Eigen::Vector3d(0,0,1)).toRotationMatrix();
+    return R_z*R_y*R_x;
+}
+
+//********通过角度计算*******
+Eigen::Matrix3d eulerAnglesToRotationMatrix(Eigen::Vector3d &theta) //rpy
+{
+    Eigen::Matrix3d R_x;    // 计算旋转矩阵的X分量
+    R_x <<
+        1,              0,               0,
+        0,  cos(theta[0]),  -sin(theta[0]),
+        0,  sin(theta[0]),   cos(theta[0]);
+
+    Eigen::Matrix3d R_y;    // 计算旋转矩阵的Y分量
+    R_y <<
+        cos(theta[1]),   0, sin(theta[1]),
+                    0,   1,             0,
+        -sin(theta[1]),  0, cos(theta[1]);
+
+    Eigen::Matrix3d R_z;    // 计算旋转矩阵的Z分量
+    R_z <<
+        cos(theta[2]), -sin(theta[2]), 0,
+        sin(theta[2]),  cos(theta[2]), 0,
+                    0,              0, 1;
+    Eigen::Matrix3d R = R_z * R_y * R_x;
+    return R;
+}
+
+/** 功能： 通过给定的旋转矩阵计算对应的欧拉角**/
+bool isRotationMatirx(Eigen::Matrix3d R)
+{
+    int err=1e-6;//判断R是否奇异
+    Eigen::Matrix3d shouldIdenity;
+    shouldIdenity=R*R.transpose();
+    Eigen::Matrix3d I=Eigen::Matrix3d::Identity();
+    return (shouldIdenity-I).norm()<err?true:false;
+}
+
+Eigen::Vector3d rotationMatrixToEulerAngles(Eigen::Matrix3d &R)
+{
+    assert(isRotationMatrix(R));
+    float sy = sqrt(R(0,0) * R(0,0) + R(1,0) * R(1,0));
+    bool singular = sy < 1e-6;
+    float x, y, z;
+    if (!singular)
+    {
+        x = atan2( R(2,1), R(2,2));
+        y = atan2(-R(2,0), sy);
+        z = atan2( R(1,0), R(0,0));
+    }
+    else
+    {
+        x = atan2(-R(1,2), R(1,1));
+        y = atan2(-R(2,0), sy);
+        z = 0;
+    }
+    return Eigen::Vector3d(x, y, z);
+}
 
 /*********************************** 6 *************************************
  * string转double
