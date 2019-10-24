@@ -23,6 +23,9 @@
 	pData = nullptr;
 #endif
 
+#ifdef SAVE_RPY
+    fprintf(pData, "%lf %lf %lf\n", roll, pitch, yaw);
+#endif
 /*********************************** 2 *************************************
  * 读取文件内容
  **/
