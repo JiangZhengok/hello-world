@@ -2,6 +2,9 @@
 /*********************************** 1 *************************************
  * 写入数据到文件，文件名由当前时间命名
  **/
+#include <iostream>
+#include <sys/time.h>
+
 #define SAVE_DATA
 
 #ifdef SAVE_DATA
@@ -186,4 +189,39 @@ double string2num(string str)
     ss << str;
     ss >> num;
     return num;
+}
+
+/*********************************** 6 *************************************
+/**
+ * 二分查找有序数组
+ **/
+int binarySearch(int Array[],int key,int n) {
+
+    int left=0;         //记录范围左边界
+    int right = n - 1;  //记录范围右边界
+    int mid;            //范围是否不为空
+    while (left<=right)
+    {
+        mid = (right + left) / 2;
+        if (Array[mid]==key)
+        {
+            return mid;         //查找成功返回
+        }
+        else if (Array[mid]>key)
+        {
+            right = mid - 1;    //继续在右半边中查找
+        }
+        else
+        {
+            left = mid + 1;     //继续在左半边中查找
+        }
+    }
+    return -1;                  //当left>right时表示查找区间为空，查找失败
+}
+
+/* 四舍五入到小数点后2位 */
+float func(float a)
+{
+    return (int)(a*100+0.5)/100.0;
+    //return floor(a*100+0.5)/100.0;
 }
