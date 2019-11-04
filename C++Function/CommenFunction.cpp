@@ -225,3 +225,11 @@ float func(float a)
     return (int)(a*100+0.5)/100.0;
     //return floor(a*100+0.5)/100.0;
 }
+
+/* GPS周和周内秒时间转UTC时间, 单位s */
+#define GPS2UTC_leapSecond = 18;         //GPS-UTC=18s (Year:2017)
+#define GPS2UNIX_Second = 315964800;    //GPS 1980 UNIX 1970 
+double  GPS2UNIX(int GpsWeek, double GpsSecond)
+{
+	return GpsWeek*86400.0*7.0 + GpsSecond + GPS2UNIX_Second - GPS2UTC_leapSecond;
+};
