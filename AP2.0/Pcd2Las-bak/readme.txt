@@ -1,3 +1,0 @@
-GDAL
-LASTool
-PCL1.8.0
