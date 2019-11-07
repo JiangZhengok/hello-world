@@ -1,0 +1,22 @@
+﻿    正在创建库 E:\1_code\Pcd2Las\x64\Release\Pcd2Las.lib 和对象 E:\1_code\Pcd2Las\x64\Release\Pcd2Las.exp
+  正在生成代码
+  All 1569 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+LASlib.lib(arithmeticdecoder.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(arithmeticdecoder.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(arithmeticencoder.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(arithmeticencoder.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(arithmeticmodel.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(arithmeticmodel.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(integercompressor.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(integercompressor.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(lasutility.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(lasutility.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswaveform13writer.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswaveform13writer.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriteitemcompressed_v1.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriteitemcompressed_v1.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriteitemcompressed_v2.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriteitemcompressed_v2.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswritepoint.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswritepoint.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriter.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriter.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriter_bin.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriter_bin.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriter_las.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriter_las.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriter_qfit.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriter_qfit.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriter_txt.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriter_txt.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laswriter_wrl.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laswriter_wrl.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+LASlib.lib(laszip.obj) : warning LNK4099: 未找到 PDB“LASlib.pdb”(使用“LASlib.lib(laszip.obj)”或在“E:\1_code\Pcd2Las\x64\Release\LASlib.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+  Pcd2Las.vcxproj -> E:\1_code\Pcd2Las\x64\Release\Pcd2Las.exe
+  Pcd2Las.vcxproj -> E:\1_code\Pcd2Las\x64\Release\Pcd2Las.pdb (Full PDB)
