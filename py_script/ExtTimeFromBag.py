@@ -15,9 +15,9 @@ from cv_bridge import CvBridgeError
 #import os
 #import sys
 
-filename = 'array_reflection_2D_TM_vertical_normE_center.txt'
+#filename = 'array_reflection_2D_TM_vertical_normE_center.txt'
 
-file_handle=open('1.txt',mode='w')
+file_handle=open('times.txt',mode='w')
 with rosbag.Bag('/media/jiang/X032/0926_kbd_test_bag/2019-09-26-14-07-00.bag', 'r') as bag: 
     for topic,msg,t in bag.read_messages():
         if topic == "/pandar_points":          #/kbd_cam_node/raw_kbd_cam_rear               
