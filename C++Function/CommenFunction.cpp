@@ -219,17 +219,33 @@ int binarySearch(int Array[],int key,int n) {
     return -1;                  //当left>right时表示查找区间为空，查找失败
 }
 
-/* 四舍五入到小数点后2位 */
+
+/*********************************** 7 *************************************
+/**
+ * 四舍五入到小数点后2位
+ **/
 float func(float a)
 {
     return (int)(a*100+0.5)/100.0;
     //return floor(a*100+0.5)/100.0;
 }
 
-/* GPS周和周内秒时间转UTC时间, 单位s */
+/*********************************** 8 *************************************
+/**
+ * GPS周和周内秒时间转UTC时间, 单位s
+ **/
 #define GPS2UTC_leapSecond = 18;         //GPS-UTC=18s (Year:2017)
 #define GPS2UNIX_Second = 315964800;    //GPS 1980 UNIX 1970 
 double  GPS2UNIX(int GpsWeek, double GpsSecond)
 {
 	return GpsWeek*86400.0*7.0 + GpsSecond + GPS2UNIX_Second - GPS2UTC_leapSecond;
 };
+
+/*********************************** 9 *************************************
+/**
+ * 四元数球面线性插值
+ **/
+https://www.cnblogs.com/21207-iHome/p/6952004.html
+
+
+
