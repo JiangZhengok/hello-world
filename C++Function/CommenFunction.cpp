@@ -1,3 +1,18 @@
+/**** 1 **** 写入数据到文件，文件名由当前时间命名 **/
+/**** 2 **** 读取文件内容 **/
+/**** 3 **** 获取制定目录下的所有文件名 **/
+/**** 4 **** 文件名去除后缀，获取时间戳 **/
+/**** 5 **** 旋转矩阵到欧拉角 欧拉角到旋转矩阵 欧拉角到四元数 **/
+/**** 6 **** string转double **/
+/**** 7 **** 二分查找有序数组 **/
+/**** 8 **** 四舍五入到小数点后2位 **/
+/**** 9 **** GPS周和周内秒时间转UTC时间, 单位s **/
+/**** 10 *** 四元数球面线性插值 **/
+/**** 11 *** opencv特征均匀提取与匹配 **/
+/**** 12 *** 读取文件内容, 逗号间隔的数据 **/
+/**** 13 *** opencv图像去畸变，lable点去畸变 **/
+/**** 14 *** opencv 2d_2d求位姿，RANSAC去除误匹配 **/
+
 
 /*********************************** 1 *************************************
  * 写入数据到文件，文件名由当前时间命名
@@ -29,8 +44,9 @@
 #ifdef SAVE_RPY
     fprintf(pData, "%lf %lf %lf\n", roll, pitch, yaw);
 #endif
+
 /*********************************** 2 *************************************
- * 读取文件内容
+ * 读取文件内容, 空格间隔的数据
  **/
 void ReadVelPose(vector<CamPose> &vCam_Pose, const char* FilePath)
 {
@@ -191,7 +207,7 @@ double string2num(string str)
     return num;
 }
 
-/*********************************** 6 *************************************
+/*********************************** 7 *************************************
 /**
  * 二分查找有序数组
  **/
@@ -220,7 +236,7 @@ int binarySearch(int Array[],int key,int n) {
 }
 
 
-/*********************************** 7 *************************************
+/*********************************** 8 *************************************
 /**
  * 四舍五入到小数点后2位
  **/
@@ -230,7 +246,7 @@ float func(float a)
     //return floor(a*100+0.5)/100.0;
 }
 
-/*********************************** 8 *************************************
+/*********************************** 9 *************************************
 /**
  * GPS周和周内秒时间转UTC时间, 单位s
  **/
@@ -241,12 +257,317 @@ double  GPS2UNIX(int GpsWeek, double GpsSecond)
 	return GpsWeek*86400.0*7.0 + GpsSecond + GPS2UNIX_Second - GPS2UTC_leapSecond;
 };
 
-/*********************************** 9 *************************************
+/*********************************** 10 *************************************
 /**
  * 四元数球面线性插值
  **/
 https://www.cnblogs.com/21207-iHome/p/6952004.html
 
-/*********************************** 10 *************************************
+/*********************************** 11 *************************************
+/** 
+ * opencv特征均匀提取与匹配
+ **/
 
+void find_surf_matches(const cv::Mat& img1, const cv::Mat& img2,
+                                       std::vector<cv::KeyPoint>& keyPoint_obj,
+                                       std::vector<cv::KeyPoint>& keyPoint_scene,
+                                       std::vector< cv::DMatch >& goodMatch)
+{
+    //SURF特征提取
+    int minHessian = 200;
+    Ptr<SURF> detector = SURF::create(minHessian);
+    
+    Mat descriptor_obj, descriptor_scene;
+    detector->detectAndCompute(img1, Mat(), keyPoint_obj, descriptor_obj, false);
+    detector->detectAndCompute(img2, Mat(), keyPoint_scene, descriptor_scene, false);
+    
+    cv::Ptr<cv::DescriptorMatcher> surfDescriptorMatcher = cv::Ptr<cv::DescriptorMatcher>(new cv::BFMatcher(cv::NORM_L2, false));
+    std::vector<std::vector<cv::DMatch>> candidateFwdMatches;
+    surfDescriptorMatcher->knnMatch(descriptor_obj, descriptor_scene, candidateFwdMatches, 5);
+    
+    std::vector<std::vector<cv::DMatch>> candidateRevMatches;
+    surfDescriptorMatcher->knnMatch(descriptor_scene, descriptor_obj, candidateRevMatches, 5);
+    cout << "candidateFwdMatches size: " << candidateFwdMatches.size() << ", candidateRevMatches size: " << candidateRevMatches.size() << endl;
 
+    float k_maxDistanceRatio = 0.7;
+    std::vector<std::vector<cv::DMatch>> fwdMatches(candidateFwdMatches.size());
+    for (size_t i = 0; i < candidateFwdMatches.size(); ++i)
+    {
+        std::vector<cv::DMatch> &match = candidateFwdMatches.at(i);
+
+        if (match.size() < 2)
+        {
+            continue;
+        }
+
+        float distanceRatio = match.at(0).distance / match.at(1).distance;
+
+        if (distanceRatio < k_maxDistanceRatio)
+        {
+            fwdMatches.at(i).push_back(match.at(0));
+        }
+    }
+
+    std::vector<std::vector<cv::DMatch>> revMatches(candidateRevMatches.size());
+    for (size_t i = 0; i < candidateRevMatches.size(); ++i)
+    {
+        std::vector<cv::DMatch> &match = candidateRevMatches.at(i);
+
+        if (match.size() < 2)
+        {
+            continue;
+        }
+
+        float distanceRatio = match.at(0).distance / match.at(1).distance;
+
+        if (distanceRatio < k_maxDistanceRatio)
+        {
+            revMatches.at(i).push_back(match.at(0));
+        }
+    }
+
+    // cross-check
+    for (size_t i = 0; i < fwdMatches.size(); ++i)
+    {
+        if (fwdMatches.at(i).empty())
+        {
+            continue;
+        }
+
+        cv::DMatch &fwdMatch = fwdMatches.at(i).at(0);
+
+        if (revMatches.at(fwdMatch.trainIdx).empty())
+        {
+            continue;
+        }
+
+        cv::DMatch &revMatch = revMatches.at(fwdMatch.trainIdx).at(0);
+
+        if (fwdMatch.queryIdx == revMatch.trainIdx &&
+            fwdMatch.trainIdx == revMatch.queryIdx)
+        {
+            cv::DMatch match;
+            match.queryIdx = fwdMatch.queryIdx;
+            match.trainIdx = revMatch.queryIdx;
+            match.distance = fwdMatch.distance;
+            goodMatch.push_back(match);
+        }
+    }
+    cout << "matches total length: " << goodMatch.size();
+
+    //将匹配关系表示出来
+//    Mat matchesImg;
+//    drawMatches(img1, keyPoint_obj, img2, keyPoint_scene, goodMatch, matchesImg, Scalar::all(-1), Scalar::all(-1),
+//                vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+//    cv::namedWindow("goodMatches", CV_WINDOW_NORMAL);
+//    imshow("goodMatches",matchesImg);
+////    imwrite("/home/jiang/2_data/MonoDistance/image_write/NoRansac.png", matchesImg);
+// 	cv::waitKey(0);
+}
+
+/*********************************** 12 *************************************
+ * 读取文件内容, 逗号间隔的数据 
+ **/
+void ReadLable(vector<ImgLable> &vImgLable， const string &FilePath)
+{
+    char buffer[1000];
+    ifstream LableFile(FilePath.c_str());
+
+    if(LableFile.is_open())
+    {
+        //cout << "---打开CamPoseFile文件路径： " << file << endl << endl;
+        while (!LableFile.eof())
+        {
+            LableFile.getline(buffer, 1000);
+
+            int bValid, nType1, tracked_id;            
+            float fMaxX, fMaxY, fMinX, fMinY, fProb;
+            
+            sscanf(buffer,"%d,%d,%d,%f,%f,%f,%f,%f", 
+                            &bValid, &nType1, &tracked_id, &fMaxX, &fMaxY, &fMinX, &fMinY);
+
+            if(LableFile.fail())
+                break;
+
+            ImgLable tmpLable;
+            
+            tmpLable.nType = nType1;
+            tmpLable.bValid = bValid;
+            tmpLable.tracked_id = tracked_id;           
+
+            tmpLable.fMaxX = fMaxX;    tmpLable.fMaxY = fMaxY;
+            tmpLable.fMinX = fMinX;    tmpLable.fMinY = fMinY;           
+
+            vImgLable.emplace_back(tmpLable);
+        }
+    }
+    else
+        cerr << "---LableFile 打开失败" << file << endl << endl;
+
+    LableFile.close();   
+    
+}
+
+/*********************************** 13 *************************************
+* opencv图像去畸变，lable点去畸变
+**/
+void Monodistance::UndistortImageAndLable(const cv::Mat &img, cv::Mat &imgCalib, vector<ImgLable> &vlable)
+{
+    Mat frame;
+
+    Mat map1, map2;
+    Size imageSize;
+    imageSize = img.size();
+    initUndistortRectifyMap(mK, mD, Mat(),
+                            getOptimalNewCameraMatrix(mK, mD, imageSize, 1, imageSize, 0),
+                            imageSize, CV_16SC2, map1, map2);
+
+    remap(img, imgCalib, map1, map2, INTER_LINEAR);
+//    imshow("Origianl", img);
+//    imshow("Calibration", imgCalib);
+//    imwrite("c:\\Users\\yangg\\Desktop\\立体匹配\\1左矫正.png", imgCalib);
+//    cv::waitKey(0);
+
+    int rows1 = map1.rows;
+    int cols1 = map1.cols;
+    int n = vlable.size();
+    for(int i=0; i<n; i++)
+    {
+        ImgLable CurLable = vlable[i];
+        cv::Point2f vLablePoint1, vLablePoint2;
+        cv::Point2f vLablePointUn1(0.0, 0.0), vLablePointUn2(0.0, 0.0);
+
+        vLablePoint1 = cv::Point2f(CurLable.fMinX, CurLable.fMinY);
+        vLablePoint2 = cv::Point2f(CurLable.fMaxX, CurLable.fMaxY);
+
+// initUndistortRectifyMap() 这个函数计算出来的 map1 是CV_16SC2类型的两通道变量，
+// 而且函数计算的 map1 是根据理想图像计算出来的每一个像素点对应的畸变后的x方向点和y方向点，
+// 即map1的像素（x，y）是理想点(去畸变后的点)，map1的通道[0]代表理想点x发生畸变后的x'点，
+// map1的通道[1]代表理想点y发生畸变后的y'点，而你的（1344,756）是畸变后的（x',y'）点，
+// 如果你想要的找到（1344,756）对应的理想点，要通过查表法查找map1(i,j)[0]=1344，map1(i,j)[1]=756,
+// 此时的(i,j)是（1344,756）对应的理想点，而此函数求出来的map2实际是没什么用的，当map1类型是CV_32FC1时，
+// 此函数计算出的map1为对应的x方向映射，map2为对应的y方向映射，但是查找理想点还是要用我刚刚说的查表方法查。
+        for (int v = 0; v < rows1; v++)
+        {
+            for (int u = 0; u < cols1; u++)
+            {
+                // typedef cv::Vec<int16_t, 2> Vec2myi;
+                if (abs(map1.at<Vec2myi>(v, u)[0] - (int)vLablePoint1.x) < 2 &&
+                    abs(map1.at<Vec2myi>(v, u)[1] - (int)vLablePoint1.y) < 2 )
+                {
+                    vLablePointUn1.x = (float)u;
+                    vLablePointUn1.y = (float)v;
+                    break;
+                }
+                else if (abs(map1.at<Vec2myi>(v, u)[0] - (int)vLablePoint2.x) < 2 &&
+                         abs(map1.at<Vec2myi>(v, u)[1] - (int)vLablePoint2.y) < 2)
+                {
+                    vLablePointUn2.x = (float)u;
+                    vLablePointUn2.y = (float)v;
+                    break;
+                }
+            }
+        }
+
+        vlable[i].fMinX = vLablePointUn1.x;
+        vlable[i].fMinY = vLablePointUn1.y;
+        vlable[i].fMaxX = vLablePointUn2.x;
+        vlable[i].fMaxY = vLablePointUn2.y;
+    }
+
+}
+
+/*********************************** 14 *************************************
+* opencv 2d_2d求位姿，RANSAC去除误匹配
+**/
+void Pose2d2dAndRansac (
+    const cv::Mat &img1,
+    const cv::Mat &img2,
+    const std::vector<cv::KeyPoint>& keypoints_1,
+    const std::vector<cv::KeyPoint>& keypoints_2,
+    const std::vector<cv::DMatch>& matches,
+    cv::Mat& R, cv::Mat& t )
+{    
+    //-- 把匹配点转换为vector<Point2f>的形式
+    vector<cv::Point2f> points1， points2; 
+    vector <KeyPoint> RAN_KP1, RAN_KP2;
+
+    for ( int i = 0; i < ( int ) matches.size(); i++ )
+    {
+        //cout << "[matches[i].queryIdx: " << matches[i].queryIdx << endl;
+        points1.push_back ( keypoints_1[matches[i].queryIdx].pt );
+        points2.push_back ( keypoints_2[matches[i].trainIdx].pt );
+
+        RAN_KP1.push_back ( keypoints_1[matches[i].queryIdx] );
+        RAN_KP2.push_back ( keypoints_2[matches[i].trainIdx] );
+
+    }   
+
+    //-- 计算本质矩阵
+    cv::Mat essential_matrix;
+    cv::Mat mask;  //mask中大于零的点代表内点，等于零的点代表外点
+    vector<uchar> RansacStatus;
+
+    essential_matrix = findEssentialMat(points1, points2, mK, CV_RANSAC, 0.999, 3.0, mask); // 3.0->25 4.0->19
+    if (essential_matrix.empty())
+        cerr << "essential_matrix is empty." << endl;
+
+    for(int i=0; i<mask.size().height; i++)
+        RansacStatus.emplace_back(mask.at<uchar>(i,0));
+
+    // cout << "RansacStatus.size(): " << RansacStatus.size() << endl;
+
+    int feasible_count=0, unfeasible_count=0;
+    for(int i=0; i<RansacStatus.size(); i++)
+    {
+        if(RansacStatus[i] == 0)
+            unfeasible_count++;
+        else
+            feasible_count++;
+    }
+
+    cout << "内点数量： " << feasible_count << endl;
+    cout << "外点数量： " << points1.size() - feasible_count << endl;
+
+    //对于RANSAC而言，outlier数量大于50%时，结果是不可靠的
+    float rito = (float)feasible_count / points1.size();
+        cout << "内点占比： " << rito << endl;
+    if (rito < 0.6)
+        cerr << "外点数量大于40%" << endl;
+
+    cout << fixed << "essential_matrix is "<< endl << essential_matrix << endl << endl;
+
+    //显示RANSAC后的匹配情况
+   vector <KeyPoint> RR_KP1, RR_KP2;
+   vector<cv::DMatch> tmpMatches(matches);
+   vector <DMatch> RR_matches;
+   int index = 0;
+   for (size_t i = 0; i < tmpMatches.size(); i++)
+   {
+       if (RansacStatus[i] != 0)
+       {
+           RR_KP1.push_back(RAN_KP1[i]);
+           RR_KP2.push_back(RAN_KP2[i]);
+           tmpMatches[i].queryIdx = index;
+           tmpMatches[i].trainIdx = index;
+           RR_matches.push_back(tmpMatches[i]);
+           index++;
+       }
+   }
+   cout << "RANSAC后匹配点数" <<RR_matches.size()<< endl;
+   Mat img_RR_matches;
+   drawMatches(img1, RR_KP1, img2, RR_KP2, RR_matches, img_RR_matches);
+   imshow("After RANSAC",img_RR_matches);
+// imwrite("/home/jiang/2_data/MonoDistance/image_write/ransac.png", img_RR_matches);
+
+    //-- 从本质矩阵中恢复旋转和平移信息.
+    int pass_count = recoverPose ( essential_matrix, points1, points2, mK, R, t, mask); 
+    
+    if (((double)pass_count) / feasible_count < 0.7)    //同时位于两个相机前方的点的数量要足够大
+        cerr << "同时位于两个相机前方的点的数量太少" << endl;
+
+    cout << fixed << "R is "<< endl << R << endl << endl;
+    cout << fixed << "t is "<< endl << t << endl;
+
+    cv::waitKey(0);
+}
