@@ -59,6 +59,10 @@ void ReadVelPose(vector<CamPose> &vCam_Pose, const char* FilePath)
             CamPose CurPose;
             CamPoseFile >> CurPose.t >> CurPose.x >> CurPose.y >> CurPose.z >> CurPose.roll >> CurPose.pitch
                         >> CurPose.yaw;
+
+			if(CamPoseFile.fail())
+				break;
+
             vCam_Pose.push_back(CurPose);
         }
     }
